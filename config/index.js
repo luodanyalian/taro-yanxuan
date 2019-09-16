@@ -1,6 +1,13 @@
 const path = require('path')
 
-const sassImportor = function(url) {
+// NOTE 在 sass 中通过别名（@ 或 ~）引用需要指定路径
+const sassImporter = function(url) {
+  if (url[0] === '~' && url[1] !== '/') {
+    return {
+      file: path.resolve(__dirname, '..', 'node_modules', url.substr(1))
+    }
+  }
+
   const reg = /^@styles\/(.*)/
   return {
     file: reg.test(url) ? path.resolve(__dirname, '..', 'src/styles', url.match(reg)[1]) : url
@@ -33,7 +40,7 @@ const config = {
       ]
     },
     sass: {
-      importer: sassImportor
+      importer: sassImporter
     }
   },
   defineConstants: {
@@ -89,6 +96,7 @@ const config = {
     }
   },
   h5: {
+    // NOTE H5 打包静态资源时带 hash 值，方便缓存、版本管理
     publicPath: '/',
     staticDirectory: 'static',
     output: {
@@ -125,7 +133,13 @@ const config = {
       }
     },
     sassLoaderOption: {
-      importer: sassImportor
+      importer: sassImporter
+    }
+  },
+  rn: {
+    appJson: {
+      // NOTE taro-native-shell 中默认用的是 taroDemo
+      name: 'taroDemo'
     }
   }
 }
